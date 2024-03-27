@@ -18,6 +18,7 @@ public class ScreenShotManager {
             File screenshotFile = ((TakesScreenshot) ConfigManager.getDriver()).getScreenshotAs(OutputType.FILE);
             FileUtils.copyFile(screenshotFile, new File("screenshots/"+screenshotName));
             return Files.readAllBytes(Paths.get("screenshots\\"+screenshotName));
+            //return Files.readAllBytes(Paths.get("screenshots/"+screenshotName));
         }
         catch (IOException e){
             return null;
