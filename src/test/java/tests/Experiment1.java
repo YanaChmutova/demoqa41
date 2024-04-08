@@ -1,16 +1,18 @@
 package tests;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.Rectangle;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 
 import java.time.Duration;
-import java.util.Set;
+import java.util.*;
 
 public class Experiment1 {
 
@@ -65,11 +67,86 @@ public class Experiment1 {
     }
 
     @Test
-    public void testRectangle() {
-        // TODO
+    public void iframeTest() throws InterruptedException {
+        WebDriver driver = new FirefoxDriver();
+        driver.get("https://the-internet.herokuapp.com/iframe");
+        driver.manage().window().maximize();
+
+        Thread.sleep(2000);
+        By textElementInIframe = By.xpath("//body[@id='tinymce']/p");
+
+        List<WebElement> beforeIframe = driver.findElements(textElementInIframe);
+        System.out.println("before switch to iframe should be zero: " + beforeIframe.size());
+
+        //driver.switchTo().frame(0);
+        driver.switchTo().frame("mce_0_ifr");
+
+        List<WebElement> insideIframe = driver.findElements(textElementInIframe);
+        System.out.println("after switch to iframe should be one: " + insideIframe.size());
+
+        driver.switchTo().defaultContent();
+
+        List<WebElement> backToDefault = driver.findElements(textElementInIframe);
+        System.out.println("after switch back to default should be zero: " + backToDefault.size());
+
+        driver.quit();
+
     }
 
-    // TODO SoftAsserts
+    @Test
+    public void iFrameNestedTest() throws InterruptedException {
+        WebDriver driver = new FirefoxDriver();
+        driver.get("https://the-internet.herokuapp.com/nested_frames");
+        driver.manage().window().maximize();
+
+        Thread.sleep(2000);
+
+        By bodyTag = By.xpath("//body");
+        System.out.println("bot a frame, size 0: " + driver.findElements(bodyTag).size());
+
+        driver.switchTo().frame("frame-top");
+        driver.switchTo().frame(0);
+        System.out.println("LEFT: " + driver.findElement(bodyTag).getText());
+
+        driver.switchTo().defaultContent();
+        driver.switchTo().defaultContent();
+
+        driver.switchTo().frame("frame-bottom");
+        System.out.println("Bottom: " + driver.findElement(bodyTag).getText());
+
+        driver.quit();
+    }
+
+    @Test
+    public void testRectangle() throws InterruptedException {
+        WebDriver driver = new FirefoxDriver();
+        driver.get("https://demoqa.com/slider");
+        driver.manage().window().maximize();
+        WebElement range =
+                driver.findElement(By.xpath("//input[@type='range']"));
+
+        Rectangle rectangleRange = range.getRect();
+        int widthRange = rectangleRange.width;
+        System.out.println("width: " + widthRange);
+
+        Actions actions = new Actions(driver);
+        actions.moveToElement(range).perform();
+
+        int xLocation = range.getLocation().getX();
+        System.out.println("x location: " + xLocation);
+
+        //  int xTo = (widthRange - xLocation) / 2;
+        int xTo = (widthRange) / 3;
+
+        actions.moveByOffset(xTo, 0).click().perform();
+
+        Thread.sleep(5000);
+
+        driver.quit();
+
+    }
+
+    // TODO iframe
 
     @Test
     public void softAssertsTest() {
